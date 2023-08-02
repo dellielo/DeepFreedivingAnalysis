@@ -1,5 +1,5 @@
-import pandas as pd
-import streamlit as st
+
+
 # from ...freediving_analysis import collect_data_aida
 
 from pandas.api.types import (
