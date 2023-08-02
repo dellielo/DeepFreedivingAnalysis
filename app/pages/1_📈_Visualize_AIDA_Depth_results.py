@@ -1,7 +1,4 @@
-
-
-# from ...freediving_analysis import collect_data_aida
-
+import streamlit as st
 from pandas.api.types import (
     is_categorical_dtype,
     is_datetime64_any_dtype,
