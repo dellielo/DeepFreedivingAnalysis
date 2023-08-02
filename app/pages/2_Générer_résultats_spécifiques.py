@@ -43,7 +43,7 @@ if index_event :
         # st.write(dict_day)        
         df = collect_data_aida.get_results_event_list_days(index_event, dict_day, type_results)
 
-        st.dataframe(df)
+        st.dataframe(df, hide_index=True)
 
         @st.cache_data
         def convert_df(df):
