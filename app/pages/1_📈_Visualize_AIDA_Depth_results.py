@@ -1,4 +1,6 @@
 import streamlit as st
+import pandas as pd
+
 from pandas.api.types import (
     is_categorical_dtype,
     is_datetime64_any_dtype,
@@ -25,7 +27,7 @@ def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Filtered dataframe
     """
-    modify = st.checkbox("Add filters")
+    modify = st.checkbox("Ajouter un ou des filtres")
 
     if not modify:
         return df
@@ -46,14 +48,14 @@ def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     modification_container = st.container()
 
     with modification_container:
-        to_filter_columns = st.multiselect("Filter dataframe on", df.columns)
+        to_filter_columns = st.multiselect("Filtrer le tableau sur", df.columns)
         for column in to_filter_columns:
             left, right = st.columns((1, 20))
             left.write("↳")
             # Treat columns with < 10 unique values as categorical
             if is_categorical_dtype(df[column]) or df[column].nunique() < 100:
                 user_cat_input = right.multiselect(
-                    f"Values for {column}",
+                    f"Valeurs pour {column}",
                     df[column].unique(),
                     default=list(df[column].unique()),
                 )
@@ -63,7 +65,7 @@ def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
                 _max = float(df[column].max())
                 step = (_max - _min) / 100
                 user_num_input = right.slider(
-                    f"Values for {column}",
+                    f"Valeurs pour {column}",
                     _min,
                     _max,
                     (_min, _max),
@@ -72,7 +74,7 @@ def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
                 df = df[df[column].between(*user_num_input)]
             elif is_datetime64_any_dtype(df[column]):
                 user_date_input = right.date_input(
-                    f"Values for {column}",
+                    f"Valeurs pour {column}",
                     value=(
                         df[column].min(),
                         df[column].max(),
@@ -84,7 +86,7 @@ def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
                     df = df.loc[df[column].between(start_date, end_date)]
             else:
                 user_text_input = right.text_input(
-                    f"Substring or regex in {column}",
+                    f"Substring ou regex dans {column}",
                 )
                 if user_text_input:
                     df = df[df[column].str.contains(user_text_input)]
@@ -102,12 +104,13 @@ def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 df = pd.read_csv(r'././data/aida_competiton.csv')
 # app\pages\1_📈_Generating_AIDA_Depth_results.py
 df_filter = filter_dataframe(df)
-st.dataframe(df_filter)
+st.write(f'Le tableau résultant contient {df_filter.shape[0]} lignes')
+st.dataframe(df_filter,hide_index=True)
 
 @st.cache_data
 def convert_df(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
-    return df.to_csv().encode('utf-8')
+    return df.to_csv(index=False).encode('utf-8')
 
 csv = convert_df(df_filter)
 
