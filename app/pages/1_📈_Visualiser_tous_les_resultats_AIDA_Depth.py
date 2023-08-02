@@ -12,7 +12,7 @@ st.title("AIDA Depth results")
 
 st.write(
     """
-        
+    Ce tableau contient tous les résultats des compétitions en eau libre AIDA de 1998 à aujourd'hui.
     """
 )
 
