@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-from ...freediving_analysis import collect_data_aida
+# from ...freediving_analysis import collect_data_aida
 
 from pandas.api.types import (
     is_categorical_dtype,
@@ -9,11 +9,11 @@ from pandas.api.types import (
     is_object_dtype,
 )
 
-st.title("Auto Filter Dataframes in Streamlit")
+st.title("AIDA Depth results")
 
 st.write(
     """
-        AIDA Depth results
+        
     """
 )
 
@@ -102,8 +102,8 @@ def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 #     # df.to_csv('aida_competiton.csv')
 # else : 
     
-df = pd.read_csv('aida_competiton.csv')
-
+df = pd.read_csv(r'.\.\data\aida_competiton.csv')
+# app\pages\1_📈_Generating_AIDA_Depth_results.py
 df_filter = filter_dataframe(df)
 st.dataframe(df_filter)
 
