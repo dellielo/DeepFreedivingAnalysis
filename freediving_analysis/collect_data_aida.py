@@ -3,22 +3,14 @@ import pandas as pd
 from lxml import etree
 from bs4 import BeautifulSoup as bs
 
-url_results = 'https://www.aidainternational.org/Events/EventStartList-{index_event}'
 URL_RESULTS = 'https://www.aidainternational.org/Events/Event{Results}-{index_event}'
 URL_REQUEST_DAY = "https://www.aidainternational.org/Events/fetch_live_days.php?selector=day&event_id={index_event}&day_index={day_index}"
-URL_EVENT_DETAILS = 'https://www.aidainternational.org/Events/EventDetails-3765'
+URL_DETAILS = 'https://www.aidainternational.org/Events/EventDetails-{index_event}'
 
 def get_details_event(index_event):
-    url =f'https://www.aidainternational.org/Events/EventDetails-{index_event}'
+    url = URL_DETAILS.format(index_event)
     r = requests.get(url)
-    # tree = etree.HTML(r.text)
-    # title_event = tree.xpath('./body/div[1]/div/main/section/div/section/div/div/div[1]/h3')[0].text
-    # description = tree.xpath('./body/div[1]/div/main/section/div/section/div/div/div[2]/div[4]/div/span[2]')[0].text
-    # date = tree.xpath('/body/div[1]/div/main/section/div/section/div/div/div[3]/div[1]/div/span[2]')[0].text
-    # return {'title_event': title_event,
-    #         'description' : description.strip(),
-    #         'start_date' : date
-    #         }
+ 
     tree = bs(r.text, "lxml")
 
     if tree.title.text != "AIDA | Event Details":
@@ -35,12 +27,11 @@ def get_details_event(index_event):
         titles = i.find_all('span', {'class':'u-actionlist__action'})
         contents = i.find_all('span', {'class':'u-actionlist__content'})
     list_info = {title.text.strip().replace(':',''): content.text.strip() for title, content in zip(titles, contents)}
-    # print(list_info)
     list_info['Title Event'] = title_event
     return list_info
 
 def get_days_competition(index_event):
-    url_results = URL_RESULTS.format(Results='Results', index_event=index_event) # narmally same between startlist and results
+    url_results = URL_RESULTS.format(Results='Results', index_event=index_event) # normally same between startlist and results
     r = requests.get(url_results)
     tree = bs(r.text, "lxml")
     print(url_results)
@@ -103,7 +94,7 @@ def get_results_event_per_day(index_event, day_index, type_results='Results'):
 
     try :
         tables = pd.read_html(str(soup))
-        if len(tables) == 1 : #and len(tables[0]) 
+        if len(tables) == 1 : 
             df_results_cur = tables[0]
             # print(df_results_cur)
             if df_results_cur.shape[0] == 1 and df_results_cur.iloc[0][0] == 'Rest Day':
@@ -111,7 +102,6 @@ def get_results_event_per_day(index_event, day_index, type_results='Results'):
             else :
                 df_results_cur = add_info_competition(df_results_cur, infos_compet)
                 df_results = df_results_cur if df_results is None else pd.concat([df_results, df_results_cur])
-                # add_info_compet()
     except :
         print(f"No table for {index_event} , day {day_index} ")
 
@@ -132,13 +122,6 @@ def get_results_event(index_event):
     df_results = None
     days_compet = get_days_competition(index_event)
     get_results_event_list_days(index_event, days_compet)
-    # for index_day, value in days_compet.items():
-    #     print(" ######  " , index_event, len(days_compet), index_day, value)
-    #     df_day = get_results_event_per_day(index_event, index_day.split("_")[1])
-    #     if df_day is not None and df_day.shape[0] > 0 :
-    #         df_day["Day"] = value
-    #         print(f"--> {index_event} - {value} - {df_day.shape[0]}")
-    #         df_results = df_day if df_results is None else pd.concat([df_results, df_day])
     return df_results
 
 def get_results_events(list_events):
