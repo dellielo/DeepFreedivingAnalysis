@@ -2,13 +2,14 @@ import requests
 import pandas as pd 
 from lxml import etree
 from bs4 import BeautifulSoup as bs
+from time import sleep
 
 URL_RESULTS = 'https://www.aidainternational.org/Events/Event{Results}-{index_event}'
 URL_REQUEST_DAY = "https://www.aidainternational.org/Events/fetch_live_days.php?selector=day&event_id={index_event}&day_index={day_index}"
 URL_DETAILS = 'https://www.aidainternational.org/Events/EventDetails-{index_event}'
 
 def get_details_event(index_event):
-    url = URL_DETAILS.format(index_event)
+    url = URL_DETAILS.format(index_event=index_event)
     r = requests.get(url)
  
     tree = bs(r.text, "lxml")
@@ -30,13 +31,18 @@ def get_details_event(index_event):
     list_info['Title Event'] = title_event
     return list_info
 
-def get_days_competition(index_event):
-    url_results = URL_RESULTS.format(Results='Results', index_event=index_event) # normally same between startlist and results
+def get_days_competition(index_event, Results='Results'):
+    url_results = URL_RESULTS.format(Results=Results, index_event=index_event) # normally same between startlist and results
     r = requests.get(url_results)
     tree = bs(r.text, "lxml")
-    print(url_results)
     days_form = {}
 
+    if not tree.title.text.replace(' ','').endswith(f"{Results}"):
+        print(tree.title)
+        print(f"no day for {index_event} for {Results}")
+        return days_form # the competition has not results for Results/EventDetails !!!
+    print(url_results)
+    
     list_days = tree.find_all("div", class_='pagination-container')
     if list_days is None or len(list_days) == 0:
         return days_form # the competition has not results !!!
@@ -87,6 +93,7 @@ def get_results_event_per_day(index_event, day_index, type_results='Results'):
     url_php_day = URL_REQUEST_DAY.format(index_event=index_event, day_index=day_index)
     url_results = URL_RESULTS.format(Results=type_results, index_event=index_event)
     r = s.get(url_php_day, data=payload, headers=headers)
+    sleep(1)
     re = s.get(url_results, headers=headers)
     print(url_php_day)
     print(url_results)
@@ -107,7 +114,7 @@ def get_results_event_per_day(index_event, day_index, type_results='Results'):
 
     return df_results
 
-def get_results_event_list_days(index_event, days_compet, type_results): 
+def get_results_event_list_days(index_event, days_compet, type_results="Results"): 
     df_results = None
     for index_day, value in days_compet.items():
         print(" ######  " , index_event, len(days_compet), index_day, value)
@@ -118,16 +125,16 @@ def get_results_event_list_days(index_event, days_compet, type_results):
             df_results = df_day if df_results is None else pd.concat([df_results, df_day])
     return df_results 
 
-def get_results_event(index_event):
+def get_results_one_event(index_event, type_results):
     df_results = None
-    days_compet = get_days_competition(index_event)
-    get_results_event_list_days(index_event, days_compet)
+    days_compet = get_days_competition(index_event, type_results)
+    df_results = get_results_event_list_days(index_event, days_compet, type_results)
     return df_results
 
 def get_results_events(list_events):
     df_results = None
     for event in list_events:
-        df_day = get_results_event(event)
+        df_day = get_results_one_event(event, 'Results')
         if df_day is not None and df_day.shape[0] > 0 :
             df_results = df_day if df_results is None else pd.concat([df_results, df_day])
     return df_results

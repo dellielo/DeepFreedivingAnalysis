@@ -17,14 +17,12 @@ if index_event :
     txt_dis = infos['Disciplines'] if 'Disciplines' in infos else ''
     st.markdown(f"<h4> Disciplines: {infos['Disciplines']}</h4>", unsafe_allow_html=True)  
 
-    days = collect_data_aida.get_days_competition(index_event)
-    inv_days = {v: k for k, v in days.items()}
-    
-
     type_results = st.radio(
     "",
     ('StartList', 'Results'))
 
+    days = collect_data_aida.get_days_competition(index_event, type_results)
+    inv_days = {v: k for k, v in days.items()}
 
     options_day = st.multiselect(
         'Selectionne le ou les jours',
