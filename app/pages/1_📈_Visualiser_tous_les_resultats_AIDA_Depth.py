@@ -107,6 +107,7 @@ df_filter = filter_dataframe(df)
 st.write(f'Le tableau résultant contient {df_filter.shape[0]} lignes')
 st.dataframe(df_filter,hide_index=True)
 
+
 @st.cache_data
 def convert_df(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
