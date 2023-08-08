@@ -101,7 +101,7 @@ def filter_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 #     # df.to_csv('aida_competiton.csv')
 # else : 
     
-df = pd.read_csv(r'././data/aida_competition.csv')
+df = pd.read_csv(r'././data/diver_stat.csv')
 # app\pages\1_📈_Generating_AIDA_Depth_results.py
 df_filter = filter_dataframe(df)
 st.write(f'Le tableau résultant contient {df_filter.shape[0]} lignes')
