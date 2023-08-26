@@ -28,7 +28,7 @@ def convert_df(df):
     return df.to_csv(index=False).encode('utf-8')
 
 csv = convert_df(df)
-st.write(f'DOWNLOAD')
+
 st.download_button(
     label="Download data as CSV",
     data=csv,
