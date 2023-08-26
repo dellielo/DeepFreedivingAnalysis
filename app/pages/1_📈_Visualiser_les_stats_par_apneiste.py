@@ -20,5 +20,18 @@ df = pd.read_csv(r'././data/diver_stat.csv')
 # app\pages\1_📈_Generating_AIDA_Depth_results.py
 # df_filter = filter_dataframe(df)
 st.write(f'Le tableau résultant contient {df.shape[0]} lignes')
-st.dataframe(df,hide_index=True)
+st.dataframe(df, hide_index=True)
 
+@st.cache_data
+def convert_df(df):
+    # IMPORTANT: Cache the conversion to prevent computation on every rerun
+    return df.to_csv(index=False).encode('utf-8')
+
+csv = convert_df(df)
+st.write(f'DOWNLOAD')
+st.download_button(
+    label="Download data as CSV",
+    data=csv,
+    file_name='aida_results_by_freediver.csv',
+    mime='text/csv',
+)
